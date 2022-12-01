@@ -1,0 +1,10 @@
+#Don't include our data input or our visualisations
+data
+visualisation
+
+#Definitely don't include anyone else's code
+otherpeoplescode
+
+#We'll be developing in Python (of course)
+*.pyc
+
