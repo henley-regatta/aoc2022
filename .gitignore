@@ -8,3 +8,6 @@ otherpeoplescode
 #We'll be developing in Python (of course)
 *.pyc
 
+#Ignore BINARIES in the go directory
+go/*
+!go/*.go
