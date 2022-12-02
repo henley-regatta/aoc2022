@@ -9,6 +9,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day1part1.go` - seemed obvious to dynamically create an int map incrementing "key" (elf index) on a blank line (_i.e._ one that can't be `str.AtoI` converted)
   - `go/day1part2.go` - Let's not dignify this with "efficient" as a characteristic but sorting the previous output by "value" (per-elf calorie count) instead of key seemed obvious, and then taking a slice of the top 3 entries and summing them was the natural conclusion
   - `go/day2part1.go` - Trying to be clever and only enumerating what I saw in the input didn't work, the implication being that I missed some game outcomes. Translating everything to Rock/Paper/Scissors and truth-tabling the game outcomes got me an actual result. Day 2 and already I'm into Voodoo coding....
+  - `go/day2part2.go` - Ah the first example of "If you do Part 1 _this_ way, Part 2 becomes easy. Just translate the instuctions and reverse the look-ups and, boomshanka, the desired result.
 
 
 ## NodeJS
