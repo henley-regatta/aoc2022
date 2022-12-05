@@ -14,6 +14,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day3part2.go` - AHHAHAAA! a little extra scaffolding to do 3-way instead of 2-way matches by whole lines but I'd basically cracked this in part 1.
   - `go/day4part1.go` - A suspiciously easy answer which (as t'internet notes) 90% of the effort is the input string parsing and only 10% on actual problem logic...
   - `go/day4part2.go` - OK, change 1 comparison condition and we get ANY overlap not just strict overlap. More time renaming variables than writing code here...
+  - `go/day5part1.go` - Nothing wrong with a bit of stack-manipulation is there? Spend an inordinate amount of time on string-slicing / rune-converting but that's just me not understanding Go very well. Also had to re-do the stack output in order to see that I'd made an error transcribing my input stack which, er, meant the wrong result. Error in Fingers not Code!
 
 
 ## NodeJS
