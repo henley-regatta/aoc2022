@@ -1,12 +1,12 @@
 package main
 
 /*
-aoc2022 - Day 6, Part 1
+aoc2022 - Day 6, Part 2
 -----------------------
 The Randomising Radio Packet Initialiser
 
 Given an input of seemingly-random characters making up a string,
-find the first set of 4 distinct/non-repeating characters that mark a packet header.
+find the first set of 14 distinct/non-repeating characters that mark a message header.
 Report the position of the last character scanned.
 */
 
@@ -18,7 +18,7 @@ import (
 )
 
 // fixed size of header
-const HDRLEN = 4
+const HDRLEN = 14
 
 // for fun:
 //var dataFile = "data/day6test.txt"
