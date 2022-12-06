@@ -16,6 +16,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day4part2.go` - OK, change 1 comparison condition and we get ANY overlap not just strict overlap. More time renaming variables than writing code here...
   - `go/day5part1.go` - Nothing wrong with a bit of stack-manipulation is there? Spend an inordinate amount of time on string-slicing / rune-converting but that's just me not understanding Go very well. Also had to re-do the stack output in order to see that I'd made an error transcribing my input stack which, er, meant the wrong result. Error in Fingers not Code!
   - `go/day5part2.go` - Scratch the stack-smashing, return to string-slicing. Conceptually an easier problem than Part 1, only complicated by my inability to correctly apply indexes on the first attempt. 
+  - `go/day6part1.go` - Yay bit of string-scanning. Opportunity for a bit of modulus arithmetic, truth telling and functional parameterisation too.
 
 
 ## NodeJS
