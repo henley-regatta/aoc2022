@@ -19,6 +19,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day6part1.go` - Yay bit of string-scanning. Opportunity for a bit of modulus arithmetic, truth telling and functional parameterisation too.
   - `go/day6part2.go` - **GET IN** Correct anticipation of the part 2 solution means the actual code-change required is a single digit added to the CONST value. `<smugface>`
   - `go/day7part1.go` - I have a feeling I made too much of a mess of implementing what is basically the `du` command here, AND I think I've done it in a non-scalable/works-for-part-2 way to boot...
+  - `go/day7part2.go` - Oh. I got lucky with the part 2. I may not have built the tree-representation efficiently in part 1 but it provided exactly the data I needed to complete part2 as a linear (`O(n)`) scan of part 1 results. Hooray.
 
 
 ## NodeJS
