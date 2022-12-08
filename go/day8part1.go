@@ -1,7 +1,7 @@
 package main
 
 /*
-aoc2022 - Day 1, Part 1
+aoc2022 - Day 8, Part 1
 -----------------------
 Treetop Tree House Shenanigans
 
