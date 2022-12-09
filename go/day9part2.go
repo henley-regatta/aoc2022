@@ -1,15 +1,17 @@
 package main
 
 /*
-aoc2022 - Day 9, Part 1
+aoc2022 - Day 9, Part 2
 -----------------------
-The Knotty Rope-Bridge Snake Game
+The Knotty Rope-Bridge Snake Game - Wag the Tail edition
 
 Given some bullshit about knots, and a series of instructions to move a "Head" around a grid,
 count the number of unique positions a "Tail" visits during that walk.
 
-The "Tail" remains "touching" the Head - i.e. the Tail must be adjacent (horizontally,vertically OR
-diagonally) to the Head.
+The elaboration: the Tail is now 9 elements long. Each tracks the position of the one ahead of it.
+Same movement rules apply: Tail[n] must be adjacent to Tail[n-1] or Head.
+
+Report on the number of unique spots the END tail visits.
 
 */
 
@@ -97,8 +99,11 @@ func checkMoveTPos(hpos, tpos [2]int) [2]int {
 	return newTpos
 }
 
-// testing
+// testing (for part 2 should produce answer = 1, tail never moves)
 //var dataFile = "data/day9test.txt"
+
+// testing 2 (for part 2 should produce answer = 36)
+//var dataFile = "data/day9test2.txt"
 
 // live
 var dataFile = "data/day9input.txt"
@@ -111,12 +116,13 @@ func main() {
 	defer file.Close()
 	s := bufio.NewScanner(file)
 
-	//We need to know H and T's locations.
-	hpos := [2]int{0, 0}
-	tpos := [2]int{0, 0}
-	//I need to keep track of the number of distinct locations
-	//"T" visits. A Set would be ideal, but bodging it with a map
-	//with odd keys will do (x-y)
+	//Head and Tail now a 10-element tuple
+	rope := [10][2]int{}
+	for i := 0; i < 10; i++ {
+		rope[i][0] = 0
+		rope[i][1] = 0
+	}
+	//Luckily we still only need to track the tail positions:
 	tLocs := map[string]int{}
 	for s.Scan() {
 		//Each line contains an instruction consisting of a direction and a repeat factor
@@ -129,19 +135,19 @@ func main() {
 					switch ins[0] {
 					case "U":
 						{
-							hpos[1]++
+							rope[0][1]++
 						}
 					case "D":
 						{
-							hpos[1]--
+							rope[0][1]--
 						}
 					case "R":
 						{
-							hpos[0]++
+							rope[0][0]++
 						}
 					case "L":
 						{
-							hpos[0]--
+							rope[0][0]--
 						}
 					default:
 						{
@@ -149,19 +155,25 @@ func main() {
 							os.Exit(1)
 						}
 					}
-					//Now we need to decide whether to move T and if so where
-					tpos = checkMoveTPos(hpos, tpos)
-					if _, ok := tLocs[tKey(tpos)]; ok {
-						tLocs[tKey(tpos)]++ //repeat visit; don't care but why not log it
+					//It's iterate-through-an-array time!
+					for i := 1; i < len(rope); i++ {
+						rope[i] = checkMoveTPos(rope[i-1], rope[i])
+					}
+					//And now, the end is near, we can decide how to update
+					//the tail position marker:
+
+					tK := tKey(rope[9])
+					if _, ok := tLocs[tK]; ok {
+						tLocs[tK]++ //repeat visit; don't care but why not log it
 					} else {
-						tLocs[tKey(tpos)] = 1 //fresh location, mark it
+						tLocs[tK] = 1 //fresh location, mark it
 					}
 				}
 			}
 		}
 	}
 
-	fmt.Printf("Head final position: %v Tail final position: %v\n", hpos, tpos)
+	fmt.Printf("Head final position: %v Tail final position: %v\n", rope[0], rope[9])
 	//Because of the way we've used a map to track tail position, the answer we
 	//seek - the number of unique locations visited by the tail - is just the
 	//number of keys in the map
