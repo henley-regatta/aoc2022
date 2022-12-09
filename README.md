@@ -22,6 +22,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day7part2.go` - Oh. I got lucky with the part 2. I may not have built the tree-representation efficiently in part 1 but it provided exactly the data I needed to complete part2 as a linear (`O(n)`) scan of part 1 results. Hooray.
   - `go/day8part1.go` - The input parsing is fairly neat. The visibility algorithm is fairly mechanistic though, nothing too clever. Wasted about an hour not understanding how to use `range()` because I should have been using simple `for i:=;i<len(gridsize);i++` loops instead. Lots of debug `fmt.Printf` required to understand where the comparison logic was going wrong.
   - `go/day8part2.go` - Took a while to recognise that the direction-of-scan matters when you're looking for _FIRST_ blocking tree not just _ANY_ blocking tree. And the off-by-one-ism of my indexing and scoring means I'm not really satisfied with the code - it works but I'm not 100% sure I've internalised where I've iterated to/from on the checks. Oh well, an answer is an answer....
+  - `go/day9part1.go` - Distracted by other things this is a "bitty" solution arrived at by stages. Another mechanistic rather than inspired algorithm but it does reproduce the steps in the explanation.
 
 
 ## NodeJS
