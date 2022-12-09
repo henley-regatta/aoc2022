@@ -21,10 +21,10 @@ import (
 )
 
 // for testing:
-//var dataFile = "../data/day1test.txt"
+// var dataFile = "data/day1test.txt"
 
 // for Stars:
-var dataFile = "../data/day1input.txt"
+var dataFile = "data/day1input.txt"
 
 func main() {
 	file, err := os.Open(dataFile)
