@@ -25,6 +25,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day9part1.go` - Distracted by other things this is a "bitty" solution arrived at by stages. Another mechanistic rather than inspired algorithm but it does reproduce the steps in the explanation.
   - `go/day9part2.go` - OK, so my mechanistic approach to part 1 paid off, especially the functional breakdown, because extending a "knot" to a "rope" meant only changing one data-structure to an array of 10 elements and then adding an iterate-down-the-line call on each move. Again: I'm sure there's more efficient ways to do it, I *know* there's cleverer ways to do it, but this works in respectable time and with decent efficiency...
   - `go/day10part1.go` - Aha, first simple vm of the year. Interesting mechanism but I think I've implemented the cycle-value spying routine in a way that won't help me in Part 2. Spent more time on fixing Go syntax/grammer errors than on the core problem here.
+  - `go/day10part2.go` - Got lucky again as Part 2 doesn't extend the signal strength but diverts into a whole other area. Wonderful little problem with some fun fun output. Really enjoyed this one!
 
 
 ## NodeJS
