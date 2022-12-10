@@ -103,6 +103,9 @@ func checkMoveTPos(hpos, tpos [2]int) [2]int {
 // live
 var dataFile = "data/day9input.txt"
 
+// big boi - expects p1 = 8129855 p2 = 7750850
+//var dataFile = "data/input-2022-09-bb-100000.txt"
+
 func main() {
 	file, err := os.Open(dataFile)
 	if err != nil {

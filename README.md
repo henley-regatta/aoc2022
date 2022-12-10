@@ -24,6 +24,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day8part2.go` - Took a while to recognise that the direction-of-scan matters when you're looking for _FIRST_ blocking tree not just _ANY_ blocking tree. And the off-by-one-ism of my indexing and scoring means I'm not really satisfied with the code - it works but I'm not 100% sure I've internalised where I've iterated to/from on the checks. Oh well, an answer is an answer....
   - `go/day9part1.go` - Distracted by other things this is a "bitty" solution arrived at by stages. Another mechanistic rather than inspired algorithm but it does reproduce the steps in the explanation.
   - `go/day9part2.go` - OK, so my mechanistic approach to part 1 paid off, especially the functional breakdown, because extending a "knot" to a "rope" meant only changing one data-structure to an array of 10 elements and then adding an iterate-down-the-line call on each move. Again: I'm sure there's more efficient ways to do it, I *know* there's cleverer ways to do it, but this works in respectable time and with decent efficiency...
+  - `go/day10part1.go` - Aha, first simple vm of the year. Interesting mechanism but I think I've implemented the cycle-value spying routine in a way that won't help me in Part 2. Spent more time on fixing Go syntax/grammer errors than on the core problem here.
 
 
 ## NodeJS
