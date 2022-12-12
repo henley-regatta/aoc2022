@@ -3,20 +3,30 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"log"
 	"math"
 	"os"
 )
 
 /*
-aoc2022 - Day 12, Part 2
+aoc2022 - Day 12, Part 1
 ------------------------
-The Height-Transfer Mobile Signal Finding Day - Scenic Route-Finding Edition
+The Height-Transfer Mobile Signal Finding Day
 
-This is part 1, but swap the "S" position for ALL positions starting at the lowest
-point ('a'). Multi-Dijkstra, if you like.
+WITH VISUALISATION
 
-Return the SHORTEST path found.
+Stitch the generated files together using:
+	ffmpeg -f image2 -framerate 10 -i visualisation/aoc2022day12part1_%04d.png -c:v libvpx-vp9 -pix_fmt yuva420p visualisation/aoc2022_day12part1.webm
+
+
+Given an input heightmap encoded a(lowest)-z(highest),
+navigate from point S to point E in the shortest number of steps possible.
+Each (cardinal) move can vary by at most one step in height difference.
+
+This smells a lot like Dijkstra, so let's cut to the chase...
 
 */
 
@@ -32,6 +42,69 @@ type point [2]int
 type destInfo struct {
 	cost int
 	prev point
+}
+
+// IT'S GRATUITOUS PNG GENERATION TIME
+func generateVisualisation(pointmap [][]int, visited map[point]destInfo, route []point, pngNdx int) {
+	// FOR DEM OUTPUTZ
+	pngPath := "visualisation/"
+	outPngFile := fmt.Sprintf("%saoc2022day12part1_%04d.png", pngPath, pngNdx)
+	fmt.Printf("Outputting route to %s\n", outPngFile)
+
+	//Generate a canvas scaled against pointmap size
+	xScale := 6
+	yScale := 12
+	rangeX := (len(pointmap[0]) - 1) * xScale
+	rangeY := (len(pointmap) - 1) * yScale
+	topLeft := image.Point{0, 0}
+	botRight := image.Point{rangeX, rangeY}
+	outCanvas := image.NewRGBA(image.Rectangle{topLeft, botRight})
+
+	//First up plot a "background" as greyscale; lower = darker
+	//input heights known to be in range 1-26 but we don't want them too dark/light
+	gRange := 200 / 26
+	for y := 0; y < len(pointmap); y++ {
+		for x := 0; x < len(pointmap[y]); x++ {
+			gScale := uint8(225 - (pointmap[y][x]*gRange + 25))
+			for oY := 0; oY < yScale; oY++ {
+				for oX := 0; oX < xScale; oX++ {
+					outCanvas.Set(x*xScale+oX, y*yScale+oY, color.RGBA{gScale, gScale, gScale, 0xff})
+				}
+			}
+		}
+	}
+
+	//Find a "scale" for the heightmap based on the relative cost values (where known)
+	maxPathCost := 0
+	for p := range visited {
+		if visited[p].cost > maxPathCost {
+			maxPathCost = visited[p].cost
+		}
+	}
+	//We want to scale "cost" across the map from green(minimum) to red(maximum)
+	pathScale := maxPathCost / 255
+	for p := range visited {
+		for oY := 0; oY < yScale; oY++ {
+			for oX := 0; oX < xScale; oX++ {
+				green := uint8(255 - pathScale*visited[p].cost)
+				red := uint8(pathScale * visited[p].cost)
+				outCanvas.Set(p[0]*xScale+oX, p[1]*yScale+oY, color.RGBA{red, green, uint8(0), 0xff})
+			}
+		}
+	}
+
+	//Now plot the actual route over the top
+	for p := range route {
+		for oY := 0; oY < yScale; oY++ {
+			for oX := 0; oX < xScale; oX++ {
+				outCanvas.Set(route[p][0]*xScale+oX, route[p][1]*yScale+oY, color.RGBA{0x00, 0x00, 0xff, 0xff})
+			}
+		}
+	}
+
+	//Write the file
+	f, _ := os.Create(outPngFile)
+	png.Encode(f, outCanvas)
 }
 
 // Trick One is parsing the input. And I say "trick" because
@@ -151,6 +224,22 @@ func findCheapestUnvisited(unvisited map[point]destInfo) (point, bool) {
 	return minPoint, true
 }
 
+func genRouteSoFar(visited map[point]destInfo, start, end point) []point {
+
+	//Now our best route is the back-track from the end point to the start
+	trackback := []point{end}
+	for trackback[len(trackback)-1] != start {
+		prev := visited[trackback[len(trackback)-1]].prev
+		trackback = append(trackback, prev)
+	}
+	//note this route is backwards end->start, reverse it before returning
+	bestRoute := []point{}
+	for _, v := range trackback {
+		bestRoute = append([]point{v}, bestRoute...)
+	}
+	return bestRoute
+}
+
 func dijkstra_route(start, end point, pointmap [][]int) ([]point, bool) {
 
 	//Initialise the unvisited list (note: cost from start is 0)
@@ -167,6 +256,8 @@ func dijkstra_route(start, end point, pointmap [][]int) ([]point, bool) {
 	}
 	//And the visited list:
 	visited := map[point]destInfo{}
+
+	pngNdx := 0
 
 	//REPEAT UNTIL WE EVALUATE EVERYTHING:
 	for len(unvisited) > 0 {
@@ -201,6 +292,14 @@ func dijkstra_route(start, end point, pointmap [][]int) ([]point, bool) {
 		//Move current point to the visited list
 		visited[evalPoint] = unvisited[evalPoint]
 		delete(unvisited, evalPoint)
+
+		//Generate an output frame every X evals
+		if len(visited)%50 == 0 {
+			cRoute := genRouteSoFar(visited, start, evalPoint)
+			generateVisualisation(pointmap, visited, cRoute, pngNdx)
+			pngNdx++
+		}
+
 	}
 
 	//Sanity check required. Visited must contain both the "end" and the "start"
@@ -212,75 +311,18 @@ func dijkstra_route(start, end point, pointmap [][]int) ([]point, bool) {
 		return []point{}, false
 	}
 
-	//Now our best route is the back-track from the end point to the start
-	trackback := []point{end}
-	for trackback[len(trackback)-1] != start {
-		prev := visited[trackback[len(trackback)-1]].prev
-		trackback = append(trackback, prev)
-	}
-	//note this route is backwards end->start, reverse it before returning
-	bestRoute := []point{}
-	for _, v := range trackback {
-		bestRoute = append([]point{v}, bestRoute...)
-	}
-	return bestRoute, true
-}
-
-// Really the only elaboration required is to find the set of start-points from the
-// input map
-func findEligibleStartPoints(heightmap [][]int) []point {
-	//A start point is valid if it's height = 1
-	startPoints := []point{}
-	for y := 0; y < len(heightmap); y++ {
-		for x := 0; x < len(heightmap[y]); x++ {
-			if heightmap[y][x] == 1 {
-				startPoints = append(startPoints, point{x, y})
-			}
-		}
-	}
-	return startPoints
-}
-
-// optimisation. Search existing found routes for current start-point.
-// if it exists, return the length from *there* to the end-point
-func startFromExistingRoute(sp point, routes [][]point) ([]point, bool) {
-	for _, route := range routes {
-		for i := 0; i < len(route); i++ {
-			step := route[i]
-			if step == sp {
-				//yay. return remaining steps
-				return route[i:], true
-			}
-		}
-	}
-	return []point{}, false
+	return genRouteSoFar(visited, start, end), true
 }
 
 func main() {
-	_, end, heightmap := parseMap(dataFile)
-	startPoints := findEligibleStartPoints(heightmap)
-	fmt.Printf("Map size: %d Starting points: %d \n", len(heightmap)*len(heightmap[0]), len(startPoints))
-	shortestRoute := math.MaxInt
-	routes := [][]point{}
-	for i, sp := range startPoints {
-		fmt.Printf("(%d/%d - %d%%) Routing from %+v ... ", i, len(startPoints), i*100/len(startPoints), sp)
-		spRoute := []point{}
-		routeok := false
-		if subRoute, found := startFromExistingRoute(sp, routes); found {
-			routeok = true
-			spRoute = subRoute
-			fmt.Printf("(sub-route) ")
-		} else {
-			spRoute, routeok = dijkstra_route(sp, end, heightmap)
-		}
-		if routeok {
-			routes = append(routes, spRoute)
-			fmt.Printf("%d steps\n", len(spRoute)-1)
-			if len(spRoute) < shortestRoute {
-				shortestRoute = len(spRoute)
-			}
-		}
+	start, end, heightmap := parseMap(dataFile)
+	fmt.Printf("Routing from %+v to %+v...\n", start, end)
+	route, routeok := dijkstra_route(start, end, heightmap)
+	if routeok {
+		fmt.Println(route)
+		fmt.Printf("Shortest path steps: %d\n", len(route)-1)
+	} else {
+		log.Fatal("Oh god the only startpoint available doesn't route to the finish")
 	}
 
-	fmt.Printf("Shortest path steps: %d\n", shortestRoute-1)
 }

@@ -3,6 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"log"
 	"math"
 	"os"
@@ -18,6 +21,11 @@ point ('a'). Multi-Dijkstra, if you like.
 
 Return the SHORTEST path found.
 
+EXTRA-CREDIT: Visualise the paths found.
+
+Stitch the generated files together using:
+	ffmpeg -f image2 -framerate 10 -pattern_type glob -i visualisation/"aoc2022day12part2_*.png" -c:v libvpx-vp9 -pix_fmt yuva420p visualisation/aoc2022_day12part2.webm
+
 */
 
 // testing
@@ -26,12 +34,77 @@ Return the SHORTEST path found.
 // stars
 var dataFile = "data/day12input.txt"
 
+var pngNdx = 0
+
 // There's a lot of these in the code so just to keep us straight
 type point [2]int
 
 type destInfo struct {
 	cost int
 	prev point
+}
+
+// IT'S GRATUITOUS PNG GENERATION TIME
+func generateVisualisation(pointmap [][]int, visited map[point]destInfo, route []point, pngNdx int) {
+	// FOR DEM OUTPUTZ
+	pngPath := "visualisation/"
+	outPngFile := fmt.Sprintf("%saoc2022day12part2_%d.png", pngPath, pngNdx)
+	fmt.Printf("Outputting route to %s\n", outPngFile)
+
+	//Generate a canvas scaled against pointmap size
+	xScale := 6
+	yScale := 12
+	rangeX := (len(pointmap[0]) - 1) * xScale
+	rangeY := (len(pointmap) - 1) * yScale
+	topLeft := image.Point{0, 0}
+	botRight := image.Point{rangeX, rangeY}
+	outCanvas := image.NewRGBA(image.Rectangle{topLeft, botRight})
+
+	//First up plot a "background" as greyscale; lower = darker
+	//input heights known to be in range 1-26 but we don't want them too dark/light
+	gRange := 200 / 26
+	for y := 0; y < len(pointmap); y++ {
+		for x := 0; x < len(pointmap[y]); x++ {
+			gScale := uint8(225 - (pointmap[y][x]*gRange + 25))
+			for oY := 0; oY < yScale; oY++ {
+				for oX := 0; oX < xScale; oX++ {
+					outCanvas.Set(x*xScale+oX, y*yScale+oY, color.RGBA{gScale, gScale, gScale, 0xff})
+				}
+			}
+		}
+	}
+
+	//Find a "scale" for the heightmap based on the relative cost values (where known)
+	maxPathCost := 0
+	for p := range visited {
+		if visited[p].cost > maxPathCost {
+			maxPathCost = visited[p].cost
+		}
+	}
+	//We want to scale "cost" across the map from green(minimum) to red(maximum)
+	pathScale := maxPathCost / 255
+	for p := range visited {
+		for oY := 0; oY < yScale; oY++ {
+			for oX := 0; oX < xScale; oX++ {
+				green := uint8(255 - pathScale*visited[p].cost)
+				red := uint8(pathScale * visited[p].cost)
+				outCanvas.Set(p[0]*xScale+oX, p[1]*yScale+oY, color.RGBA{red, green, uint8(0), 0xff})
+			}
+		}
+	}
+
+	//Now plot the actual route over the top
+	for p := range route {
+		for oY := 0; oY < yScale; oY++ {
+			for oX := 0; oX < xScale; oX++ {
+				outCanvas.Set(route[p][0]*xScale+oX, route[p][1]*yScale+oY, color.RGBA{0x00, 0x00, 0xff, 0xff})
+			}
+		}
+	}
+
+	//Write the file
+	f, _ := os.Create(outPngFile)
+	png.Encode(f, outCanvas)
 }
 
 // Trick One is parsing the input. And I say "trick" because
@@ -151,7 +224,7 @@ func findCheapestUnvisited(unvisited map[point]destInfo) (point, bool) {
 	return minPoint, true
 }
 
-func dijkstra_route(start, end point, pointmap [][]int) ([]point, bool) {
+func dijkstra_route(start, end point, pointmap [][]int, pngNdx int) ([]point, bool) {
 
 	//Initialise the unvisited list (note: cost from start is 0)
 	unvisited := map[point]destInfo{}
@@ -223,6 +296,10 @@ func dijkstra_route(start, end point, pointmap [][]int) ([]point, bool) {
 	for _, v := range trackback {
 		bestRoute = append([]point{v}, bestRoute...)
 	}
+
+	//Generate a visualisation of this route
+	generateVisualisation(pointmap, visited, bestRoute, pngNdx)
+
 	return bestRoute, true
 }
 
@@ -271,10 +348,11 @@ func main() {
 			spRoute = subRoute
 			fmt.Printf("(sub-route) ")
 		} else {
-			spRoute, routeok = dijkstra_route(sp, end, heightmap)
+			spRoute, routeok = dijkstra_route(sp, end, heightmap, pngNdx)
 		}
 		if routeok {
 			routes = append(routes, spRoute)
+			pngNdx++
 			fmt.Printf("%d steps\n", len(spRoute)-1)
 			if len(spRoute) < shortestRoute {
 				shortestRoute = len(spRoute)
