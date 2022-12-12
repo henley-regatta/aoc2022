@@ -32,6 +32,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
     - Completely making a horlics of implementing Dijkstra because I _refuse_ to read the documents
     - Wasting hours on debugging because I _failed_ to spot the specification of height changes was asymmetric
     - Failing to take account of the fact that the map can contain "islands of unreachability" and that the classic end-conditions won't work.
+  - `go/day12part2.go` - A seemingly-simple elaboration ("Start from ALL lowest points") that should just require iterating on start point. And yet... this found a termination condition I hadn't accounted for which caused a crash which caused a lot of tracing to find out that "no route found" was something I wasn't testing for. Sort that out, implement a simple sub-route test (cheaper to lookup existing routes to see if a start point was already on it than to calculate the whole route again, but it's a fairly rare condition in the input set so it doesn't save much time). Since there's 2000 more routes to find it's clearly not a _quick_ solution but it's Good Enough (~2 minutes execution) so here it is submitted.
 
 
 ## NodeJS
