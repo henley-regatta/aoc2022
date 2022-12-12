@@ -28,6 +28,10 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day10part2.go` - Got lucky again as Part 2 doesn't extend the signal strength but diverts into a whole other area. Wonderful little problem with some fun fun output. Really enjoyed this one!
   - `go/day11part1.go` - Most of the effort here is in parsing the input, the actual algorithm follows from the instructions quite nicely. And works.
   - `go/day11part2.go` - As my son puts it: Properly _lanternfished_ by this one. Got an answer dead quick but completely missed the fact that fearLevel escalates way past the bound of any reasonable `int` size very very quickly, masked by the fact that _GO silently wraps around_ and does not provide any indicator of overflow. Given code's behaviour I was able to deduce this myself rapidly but was very stuck by how to tackle it. Needed a long talk with a tame (trainee) Mathmatician to convince myself that a) remainders were sufficient provided b) you get the _right_ remainder at the right time (i.e. choosing the modulus needs a global approach not per-monkey). Actual code changes required trivial once the problem is understood.
+  - `go/day12part1.go` - So I should get some points for spotting this is a [Dijkstra's Algorithm](https://isaaccomputerscience.org/concepts/dsa_search_dijkstra) problem right off the bat. **BUT** I should lose lots and lots and lots of points for:
+    - Completely making a horlics of implementing Dijkstra because I _refuse_ to read the documents
+    - Wasting hours on debugging because I _failed_ to spot the specification of height changes was asymmetric
+    - Failing to take account of the fact that the map can contain "islands of unreachability" and that the classic end-conditions won't work.
 
 
 ## NodeJS
