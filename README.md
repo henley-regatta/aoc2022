@@ -38,6 +38,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day13part2.go` - Aww YIS. "Sort all the packets" was a red herring; it's sufficient only to know which are smaller than the little master, and which are bigger than the big master packet. Which makes the algorithm lovely and easy to do (once you get past your off-by-one indexing problems...)
   - `go/day14part1.go` - There's no tricks or cleverness in this, I just did the mechanical grind through the problem even visualising it (in ASCII, natch) as I went. 
   - `go/day14part2.go` - This is just a resetting of the termination condition IF you've scaled and moved the map appropriately. A feat it took me far longer than it should have to achieve successfully....
+  - `go/day14part2_visualisation.go` - The problem was _screaming_ for a visualisation so here's the code to generate one and [here](https://www.guided-naafi.org/aoc2022/2022/12/14/VisualisationOfAOC2022Day14.html) is the output
 
 ## NodeJS
   - `nodejs/day1part2.js` - Baa. Same algorithm as Go but twice as long to develop because 
