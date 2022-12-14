@@ -36,7 +36,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day12part1_visualisation.go` and `go/day12part2_visualisation.go` - some days cry out to be visualised so hard that even though you spent so long and should just _move on_, you have to give it a go. At least I learned how to make PNGs in GO from it. Output available [here](https://www.guided-naafi.org/aoc2022/2022/12/12/VisualisationOfAOC2022Day12.html)
   - `go/day13part1.go` - An exercise in believing in booleans when there's explitly defined a tristate of continue. Hours of debugging and analysis revealed eventually that I was using "it passes" as "continue evaluation" on return from recursion so a pass _could_ (And given the input inevitably _did_) result in later override by a fail, aka the wrong answer. Naturally this doesn't come up in the sample data.......
   - `go/day13part2.go` - Aww YIS. "Sort all the packets" was a red herring; it's sufficient only to know which are smaller than the little master, and which are bigger than the big master packet. Which makes the algorithm lovely and easy to do (once you get past your off-by-one indexing problems...)
-
+  - `go/day14part1.go` - There's no tricks or cleverness in this, I just did the mechanical grind through the problem even visualising it (in ASCII, natch) as I went. 
 
 ## NodeJS
   - `nodejs/day1part2.js` - Baa. Same algorithm as Go but twice as long to develop because 
