@@ -40,6 +40,7 @@ This year I'm just going to pick at it in _other_ languages. Not just Python.
   - `go/day14part2.go` - This is just a resetting of the termination condition IF you've scaled and moved the map appropriately. A feat it took me far longer than it should have to achieve successfully....
   - `go/day14part2_visualisation.go` - The problem was _screaming_ for a visualisation so here's the code to generate one and [here](https://www.guided-naafi.org/aoc2022/2022/12/14/VisualisationOfAOC2022Day14.html) is the output
   - `go/day15part1.go` - A day late (work, always work) but spent time trying to be "smart" about calculating this because I _already know_ there's an algorithmic explosion coming in part 2 and I want to understand the data first. Bet I haven't accounted for it though....
+  - `go/day15part2.go` - AHA! I have, I have. An answer found in ~7 seconds wall clock time thanks to making the _correct_ decision. I'm sure there's faster ways of doing it, but this is easily Good Enough
 
 ## NodeJS
   - `nodejs/day1part2.js` - Baa. Same algorithm as Go but twice as long to develop because 
