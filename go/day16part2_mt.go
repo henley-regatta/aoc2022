@@ -46,10 +46,6 @@ type valveInfo struct {
 	d map[string]int //distances to other valves from here
 }
 
-// This is a static, build-once-reference-many structure
-// (in the new implementation)
-var vInfo = map[string]valveInfo{}
-
 type djik struct {
 	c int
 	p string
@@ -108,7 +104,9 @@ func grokValveFromLine(tline string) (string, valveInfo) {
 }
 
 // against everything I was taught, build a Global Variable
-func parseInputForValveList(fromFile string) {
+func parseInputForValveList(fromFile string) map[string]valveInfo {
+
+	vInfo := map[string]valveInfo{}
 
 	file, err := os.Open(fromFile)
 	if err != nil {
@@ -123,7 +121,7 @@ func parseInputForValveList(fromFile string) {
 		vInfo[vLabel] = vStats
 	}
 
-	return
+	return vInfo
 }
 
 func strListContains(needle string, haystack []string) bool {
@@ -151,7 +149,7 @@ func dijkfindCheapestUnvisited(nlist map[string]djik) (string, bool) {
 	}
 }
 
-func dijkDist(from, to string) int {
+func dijkDist(from, to string, vInfo map[string]valveInfo) int {
 	if to == from {
 		return 0
 	} else if strListContains(to, vInfo[from].c) {
@@ -203,11 +201,11 @@ func deleteFrom(strList []string, deleteme string) []string {
 }
 
 // pure laziness
-func costTo(from, to string) int {
+func costTo(from, to string, vInfo map[string]valveInfo) int {
 	return vInfo[from].d[to]
 }
 
-func bestPathFrom(curr cState) (int, []string) {
+func bestPathFrom(curr cState, vInfo map[string]valveInfo) (int, []string) {
 	bestNFV := curr.nfv
 	bestPath := curr.history
 	possMoves := curr.offValves
@@ -215,7 +213,7 @@ func bestPathFrom(curr cState) (int, []string) {
 	if curr.t < TIMELIMIT {
 		for _, pm := range possMoves {
 			possNFV := curr.nfv
-			tNext := curr.t + costTo(curr.pos, pm)
+			tNext := curr.t + costTo(curr.pos, pm, vInfo)
 			if tNext < TIMELIMIT {
 				//We have time to flip the valve
 				possNFV += vInfo[pm].f * (TIMELIMIT - tNext)
@@ -229,7 +227,7 @@ func bestPathFrom(curr cState) (int, []string) {
 			subState.history = append(subState.history, fmt.Sprintf("%s(%02d)", pm, tNext))
 			subState.offValves = deleteFrom(curr.offValves, pm)
 			possPath := []string{}
-			possNFV, possPath = bestPathFrom(subState)
+			possNFV, possPath = bestPathFrom(subState, vInfo)
 			if possNFV > bestNFV {
 				bestNFV = possNFV
 				bestPath = possPath
@@ -242,11 +240,11 @@ func bestPathFrom(curr cState) (int, []string) {
 }
 
 // works on the global. Is this good practice? Naa.
-func genDistances(from string) {
+func genDistances(from string, vInfo map[string]valveInfo) {
 	//Find and stash the costs to each node from here
 	dList := map[string]int{}
 	for t := range vInfo {
-		dList[t] = dijkDist(from, t)
+		dList[t] = dijkDist(from, t, vInfo)
 	}
 	//stash. terribly complicated in go
 	if newv, ok := vInfo[from]; ok {
@@ -283,7 +281,7 @@ func subDFS(inList []string, n, s int, cur []string) {
 	}
 }
 
-func evaluatePathSets(subsetsToSearch [][]string, offValves []string) (bestScore int, bestpPath, bestePath []string) {
+func evaluatePathSets(subsetsToSearch [][]string, offValves []string, vInfo map[string]valveInfo) (bestScore int, bestpPath, bestePath []string) {
 	bestScore = 0
 	bestpPath = []string{"AA(01)"}
 	bestePath = []string{"AA(01)"}
@@ -304,11 +302,11 @@ func evaluatePathSets(subsetsToSearch [][]string, offValves []string) (bestScore
 			offValves: pSet,
 			history:   []string{"AA(01)"},
 		}
-		pScore, pPath := bestPathFrom(pState)
+		pScore, pPath := bestPathFrom(pState, vInfo)
 		//Find best path for the elephant
 		eState := cloneState(pState)
 		eState.offValves = eSet
-		eScore, ePath := bestPathFrom(eState)
+		eScore, ePath := bestPathFrom(eState, vInfo)
 
 		//Total score is the sum of the individual scores
 		totScore := pScore + eScore
@@ -322,17 +320,21 @@ func evaluatePathSets(subsetsToSearch [][]string, offValves []string) (bestScore
 }
 
 func main() {
-	parseInputForValveList(dataFile)
+
+	// This is a static, build-once-reference-many structure
+	// (in the new implementation)
+
+	vInfo := parseInputForValveList(dataFile)
 
 	//special case - need all distances from start node
-	genDistances("AA")
+	genDistances("AA", vInfo)
 
 	offValves := []string{}
 	for f := range vInfo {
 		//only need info if it's a productive valve
 		if vInfo[f].f > 0 {
 			offValves = append(offValves, f)
-			genDistances(f)
+			genDistances(f, vInfo)
 		}
 	}
 	fmt.Printf("Working with a set of %d valves, %d of which are non-zero-flow: %s\n", len(vInfo), len(offValves), strings.Join(offValves, ","))
@@ -367,7 +369,7 @@ func main() {
 		//here's where we do our subcall
 		go func(subset [][]string, offValves []string) {
 			defer wg.Done()
-			bestFound, pPath, ePath := evaluatePathSets(subset, offValves)
+			bestFound, pPath, ePath := evaluatePathSets(subset, offValves, vInfo)
 			scoreChan <- bestFound
 			pChan <- pPath
 			eChan <- ePath
